@@ -35,6 +35,36 @@ public:
 		if(!root) {
 			return;
 		}
+		Node *tmp = root;
+		if(tmp->val < a) {
+			while(tmp != nullptr) {
+				if(tmp->right != nullptr) {
+					if(tmp->right->val != a){
+						tmp = tmp->right;
+					} else {
+						Node* remem = tmp->right->right;
+						delete tmp->right;
+						tmp->right = remem;
+					}
+				} else {
+					return;
+				}
+			}
+		} else {
+			while(tmp != nullptr) {
+				if(tmp->left != nullptr) {
+					if(tmp->left->val != a){
+						tmp = tmp->left;
+					} else {
+						Node* remem = tmp->left->left;
+						delete tmp->left;
+						tmp->left = remem;
+					}
+				} else {
+					return;
+				}
+			}		
+		}
 	}
 
 	bool find(int a) {
@@ -61,4 +91,20 @@ public:
 		}
 		return false;
 	}
+
+	void print() {
+        preorder(root);
+		std::cout << std::endl;
+    }
+private:
+    void preorder(Node *root){
+		if(!root) {
+			return;
+		}
+		std::cout << root->val << " ";
+
+        preorder(root->left);
+
+        preorder(root->right);
+    }
 };
