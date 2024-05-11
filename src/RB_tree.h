@@ -170,7 +170,9 @@ RBtree(){
 					tmp->parent->left->right = brother;
 					tmp->parent->parent = grand->parent;
 				}
-			} else {}
+			} else {
+				dkfjbvgvhjkdbgkb
+			}
 		} 
 	}
 
