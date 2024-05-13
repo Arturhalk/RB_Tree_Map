@@ -1,13 +1,14 @@
 #include <iostream>
 #include "RB_tree.h"
-
+#include <string>
 int main() {
-    std::cout << 12 << std::endl;
-    RBTree a;
+    std::cout << "Hello" << std::endl;
+    RBtree a;
     a.insert(3);
     a.insert(12);
+    a.insert(16);
     a.insert(1);
     a.insert(5);
-    std::cout << a.find(-30);
+    a.print();
     return 0;
 }
