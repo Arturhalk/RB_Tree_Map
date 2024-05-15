@@ -133,13 +133,18 @@ class RBtree {
 
         preorder(root->right);
     }
+    bool isUnbalanceRR(Node* current) {
+        Node* grand = current->parent->parent;
+        return current->parent == grand->right &&
+               current->parent->color == Color::red &&
+               current == current->parent->right;
+    }
     void Rotate(Node* tmp) {
         Node* grand = tmp->parent->parent;
         if (!grand) {
             return;
         }
-        if (tmp->parent == grand->right && tmp->parent->color == Color::red &&
-            grand->right->right == tmp) {
+        if (isUnbalanceRR(tmp)) {
             Node* brother = tmp->parent->left;
             // Перестраиваем дерево
             tmp->parent->left = grand;
@@ -175,6 +180,16 @@ class RBtree {
         }
         return tmp;
     }
+    void Repaint(Node* current) {
+        Node* grand = current->parent->parent;
+        if (!grand) {
+            return;
+        }
+        if (grand != header->right) {
+            grand->color = Color::red;
+        }
+        grand->left->color = Color::black;
+    }
 
    public:
     RBtree() { header = new Node(INT_MIN); }
@@ -184,7 +199,9 @@ class RBtree {
             header->right->color = Color::black;
             return;
         }
-        Rotate(SubInsert(a));
+        Node* InsertedNode = SubInsert(a);
+
+        Rotate();
     }
 
     void print() {
