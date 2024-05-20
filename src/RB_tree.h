@@ -133,29 +133,92 @@ class RBtree {
 
         preorder(root->right);
     }
-    bool isUnbalanceRR(Node* current) {
+    bool ifUnbalanceRR(Node* current) {
         Node* grand = current->parent->parent;
         return current->parent == grand->right &&
                current->parent->color == Color::red &&
                current == current->parent->right;
+    }
+    bool ifUnbalanceLL(Node* current) {
+        Node* grand = current->parent->parent;
+        return current->parent == grand->left &&
+               current->parent->color == Color::red &&
+               current == current->parent->left;
+    }
+    bool ifUnbalanceRL(Node* current) {
+        Node* grand = current->parent->parent;
+        return current->parent == grand->right &&
+               current->parent->color == Color::red &&
+               current == current->parent->left;
+    }
+    bool ifUnbalanceLR(Node* current) {
+        Node* grand = current->parent->parent;
+        return current->parent == grand->left &&
+               current->parent->color == Color::red &&
+               current == current->parent->right;
+    }
+    void isUnbalanceRR(Node* tmp) {
+        Node* grand = tmp->parent->parent;
+        Node* brother = tmp->parent->left;
+        // Перестраиваем дерево
+        tmp->parent->left = grand;
+        tmp->parent->left->right = brother;
+        // Меняем зависимость узлов(родителей и предков)
+        tmp->parent->parent = grand->parent;
+        tmp->parent->left->parent = tmp->parent;
+        if (brother) {
+            brother->parent = grand;
+        }
+        if (grand == header->right) {
+            header->right = tmp->parent;
+        }
+        // Перекрашеваем
+        tmp->parent->left->color = Color::red;
+        tmp->parent->color = Color::black;
+    }
+    void isUnbalanceLL(Node* tmp) {
+        Node* grand = tmp->parent->parent;
+        Node* brother = tmp->parent->right;
+        // Перестраиваем дерево
+        tmp->parent->right = grand;
+        tmp->parent->right->left = brother;
+        // Меняем зависимость узлов(родителей и предков)
+        tmp->parent->parent = grand->parent;
+        tmp->parent->right->parent = tmp->parent;
+        if (brother) {
+            brother->parent = grand;
+        }
+        if (grand == header->right) {
+            header->right = tmp->parent;
+        }
+        // Перекрашеваем
+        tmp->parent->right->color = Color::red;
+        tmp->parent->color = Color::black;
+    }
+    void isUnbalanceRL(Node* tmp) {
+        Node* grand = tmp->parent->parent;
+        Node* current = tmp->parent->left;
+        Node* remParent = tmp->parent;
+        // Меняем местами parent и current
+        grand->right = current;
+        current->right = remParent;
+        // Меняем зависимости снова)
+        current->parent = grand;
+        remParent->parent = current;
+        // Переходим к разбалансировке RR
+        isUnbalanceRR(tmp);
     }
     void Rotate(Node* tmp) {
         Node* grand = tmp->parent->parent;
         if (!grand) {
             return;
         }
-        if (isUnbalanceRR(tmp)) {
-            Node* brother = tmp->parent->left;
-            // Перестраиваем дерево
-            tmp->parent->left = grand;
-            tmp->parent->left->right = brother;
-            // Меняем зависимость узлов(родителей и предков)
-            tmp->parent->parent = grand->parent;
-            tmp->parent->left->parent = tmp->parent;
-            brother->parent = grand;
-            // Перекрашеваем
-            tmp->parent->left->color = Color::red;
-            tmp->parent->color = Color::black;
+        if (ifUnbalanceRR(tmp)) {
+            isUnbalanceRR(tmp);
+        } else if (ifUnbalanceLL(tmp)) {
+            isUnbalanceLL(tmp);
+        } else if (ifUnbalanceRL(tmp)) {
+            isUnbalanceRL(tmp);
         } else {
         }
     }
@@ -188,20 +251,22 @@ class RBtree {
         if (grand != header->right) {
             grand->color = Color::red;
         }
-        grand->left->color = Color::black;
+        if (grand->left) {
+            grand->left->color = Color::black;
+        }
     }
 
    public:
     RBtree() { header = new Node(INT_MIN); }
-    void insert(int a) {
+    void insert(int value) {
         if (!header->right) {  // Если дерева не существует
-            header->right = new Node(a, header);
+            header->right = new Node(value, header);
             header->right->color = Color::black;
             return;
         }
-        Node* InsertedNode = SubInsert(a);
-
-        Rotate();
+        Node* insertedNode = SubInsert(value);
+        Repaint(insertedNode);
+        Rotate(insertedNode);
     }
 
     void print() {
@@ -209,6 +274,6 @@ class RBtree {
         std::cout << std::endl;
     }
 
-    void erase(int a) {}
-    bool find(int a) { return false; }
+    void erase(int value) {}
+    bool find(int value) { return false; }
 };
