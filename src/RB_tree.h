@@ -157,7 +157,7 @@ class RBtree {
                current->parent->color == Color::red &&
                current == current->parent->right;
     }
-    void isUnbalanceRR(Node* tmp) {
+    void rotateRR(Node* tmp) {
         Node* grand = tmp->parent->parent;
         Node* brother = tmp->parent->left;
         // Перестраиваем дерево
@@ -176,7 +176,7 @@ class RBtree {
         tmp->parent->left->color = Color::red;
         tmp->parent->color = Color::black;
     }
-    void isUnbalanceLL(Node* tmp) {
+    void rotateLL(Node* tmp) {
         Node* grand = tmp->parent->parent;
         Node* brother = tmp->parent->right;
         // Перестраиваем дерево
@@ -206,20 +206,34 @@ class RBtree {
         current->parent = grand;
         remParent->parent = current;
         // Переходим к разбалансировке RR
-        isUnbalanceRR(tmp);
+        rotateRR(tmp);
+    }
+    void isUnbalanceLR(Node* tmp) {
+        Node* grand = tmp->parent->parent;
+        Node* current = tmp->parent->right;
+        Node* remParent = tmp->parent;
+        // Меняем местами parent и current
+        grand->left = current;
+        current->left = remParent;
+        // Меняем зависимости снова)
+        current->parent = grand;
+        remParent->parent = current;
+        // Переходим к разбалансировке RR
+        rotateLL(tmp);
     }
     void Rotate(Node* tmp) {
         Node* grand = tmp->parent->parent;
-        if (!grand) {
+        if (!grand || grand == header) {
             return;
         }
         if (ifUnbalanceRR(tmp)) {
-            isUnbalanceRR(tmp);
+            rotateRR(tmp);
         } else if (ifUnbalanceLL(tmp)) {
-            isUnbalanceLL(tmp);
+            rotateLL(tmp);
         } else if (ifUnbalanceRL(tmp)) {
             isUnbalanceRL(tmp);
-        } else {
+        } else if (ifUnbalanceLR(tmp)) {
+            isUnbalanceLR(tmp);
         }
     }
     Node* SubInsert(int val) {
@@ -251,8 +265,10 @@ class RBtree {
         if (grand != header->right) {
             grand->color = Color::red;
         }
-        if (grand->left) {
+        if (current->parent == grand->right && grand->left) {
             grand->left->color = Color::black;
+        } else if (current->parent == grand->left && grand->right) {
+            grand->right->color = Color::black;
         }
     }
 
