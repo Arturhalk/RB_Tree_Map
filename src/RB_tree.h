@@ -197,27 +197,29 @@ class RBtree {
     }
     void isUnbalanceRL(Node* tmp) {
         Node* grand = tmp->parent->parent;
-        Node* current = tmp->parent->left;
         Node* remParent = tmp->parent;
         // Меняем местами parent и current
-        grand->right = current;
-        current->right = remParent;
-        // Меняем зависимости снова)
-        current->parent = grand;
-        remParent->parent = current;
+        grand->right = tmp;
+        tmp->right = remParent;
+        //  Меняем зависимости снова)
+        tmp = tmp->right;
+        tmp->parent = grand->right;
+        tmp->parent->parent = grand;
+        remParent->left = nullptr;
         // Переходим к разбалансировке RR
         rotateRR(tmp);
     }
     void isUnbalanceLR(Node* tmp) {
         Node* grand = tmp->parent->parent;
-        Node* current = tmp->parent->right;
         Node* remParent = tmp->parent;
         // Меняем местами parent и current
-        grand->left = current;
-        current->left = remParent;
+        grand->left = tmp;
+        tmp->left = remParent;
         // Меняем зависимости снова)
-        current->parent = grand;
-        remParent->parent = current;
+        tmp = tmp->left;
+        tmp->parent = grand->left;
+        tmp->parent->parent = grand;
+        remParent->right = nullptr;
         // Переходим к разбалансировке RR
         rotateLL(tmp);
     }
