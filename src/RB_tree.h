@@ -122,7 +122,7 @@ class RBtree {
         Color color = Color::red;
         Node* parent;
     };
-    Node* header = nullptr;
+    Node* root = nullptr;
     void preorder(Node* root) {
         if (!root) {
             return;
@@ -133,6 +133,7 @@ class RBtree {
 
         preorder(root->right);
     }
+
     bool ifUnbalanceRR(Node* current) {
         Node* grand = current->parent->parent;
         return current->parent == grand->right &&
@@ -161,6 +162,10 @@ class RBtree {
         Node* grand = tmp->parent->parent;
         Node* brother = tmp->parent->left;
         // Перестраиваем дерево
+        if (grand->parent) {
+            grand->parent->right = tmp->parent;
+            grand->right = nullptr;
+        }
         tmp->parent->left = grand;
         tmp->parent->left->right = brother;
         // Меняем зависимость узлов(родителей и предков)
@@ -169,8 +174,8 @@ class RBtree {
         if (brother) {
             brother->parent = grand;
         }
-        if (grand == header->right) {
-            header->right = tmp->parent;
+        if (grand == root) {
+            root = tmp->parent;
         }
         // Перекрашеваем
         tmp->parent->left->color = Color::red;
@@ -180,16 +185,20 @@ class RBtree {
         Node* grand = tmp->parent->parent;
         Node* brother = tmp->parent->right;
         // Перестраиваем дерево
+        if (grand->parent) {
+            grand->parent->left = tmp->parent;
+            grand->left = nullptr;
+        }
         tmp->parent->right = grand;
-        tmp->parent->right->left = brother;
+        tmp->parent->right->left = brother;  // error
         // Меняем зависимость узлов(родителей и предков)
         tmp->parent->parent = grand->parent;
         tmp->parent->right->parent = tmp->parent;
         if (brother) {
             brother->parent = grand;
         }
-        if (grand == header->right) {
-            header->right = tmp->parent;
+        if (grand == root) {
+            root = tmp->parent;
         }
         // Перекрашеваем
         tmp->parent->right->color = Color::red;
@@ -197,33 +206,33 @@ class RBtree {
     }
     void isUnbalanceRL(Node* tmp) {
         Node* grand = tmp->parent->parent;
-        Node* current = tmp->parent->left;
-        Node* remParent = tmp->parent;
+        Node* parent = tmp->parent;
         // Меняем местами parent и current
-        grand->right = current;
-        current->right = remParent;
+        grand->right = tmp;
+        tmp->right = parent;
         // Меняем зависимости снова)
-        current->parent = grand;
-        remParent->parent = current;
+        tmp->parent = grand;
+        parent->parent = tmp;
+        parent->left = nullptr;
         // Переходим к разбалансировке RR
-        rotateRR(tmp);
+        rotateRR(tmp->right);
     }
     void isUnbalanceLR(Node* tmp) {
         Node* grand = tmp->parent->parent;
-        Node* current = tmp->parent->right;
-        Node* remParent = tmp->parent;
+        Node* parent = tmp->parent;
         // Меняем местами parent и current
-        grand->left = current;
-        current->left = remParent;
+        grand->left = tmp;
+        tmp->left = parent;
         // Меняем зависимости снова)
-        current->parent = grand;
-        remParent->parent = current;
+        tmp->parent = grand;
+        parent->parent = tmp;
+        parent->right = nullptr;
         // Переходим к разбалансировке RR
-        rotateLL(tmp);
+        rotateLL(tmp->left);
     }
     void Rotate(Node* tmp) {
         Node* grand = tmp->parent->parent;
-        if (!grand || grand == header) {
+        if (!grand) {
             return;
         }
         if (ifUnbalanceRR(tmp)) {
@@ -237,7 +246,7 @@ class RBtree {
         }
     }
     Node* SubInsert(int val) {
-        Node* tmp = header->right;
+        Node* tmp = root;
         while (tmp) {
             if (tmp->val > val) {
                 if (!tmp->left) {
@@ -262,7 +271,7 @@ class RBtree {
         if (!grand) {
             return;
         }
-        if (grand != header->right) {
+        if (grand != root) {
             grand->color = Color::red;
         }
         if (current->parent == grand->right && grand->left) {
@@ -273,11 +282,10 @@ class RBtree {
     }
 
    public:
-    RBtree() { header = new Node(INT_MIN); }
     void insert(int value) {
-        if (!header->right) {  // Если дерева не существует
-            header->right = new Node(value, header);
-            header->right->color = Color::black;
+        if (!root) {  // Если дерева не существует
+            root = new Node(value, root);
+            root->color = Color::black;
             return;
         }
         Node* insertedNode = SubInsert(value);
@@ -286,7 +294,7 @@ class RBtree {
     }
 
     void print() {
-        preorder(header->right);
+        preorder(root);
         std::cout << std::endl;
     }
 
