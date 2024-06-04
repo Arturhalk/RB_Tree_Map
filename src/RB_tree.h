@@ -276,8 +276,10 @@ class RBtree {
         }
         if (current->parent == grand->right && grand->left) {
             grand->left->color = Color::black;
+            current->parent->color = Color::black;
         } else if (current->parent == grand->left && grand->right) {
             grand->right->color = Color::black;
+            current->parent->color = Color::black;
         }
     }
 
@@ -299,5 +301,30 @@ class RBtree {
     }
 
     void erase(int value) {}
-    bool find(int value) { return false; }
+    bool find(int value) {
+        Node* current = root;
+        if (!root) {
+            return false;
+        }
+        while (current != nullptr) {
+            if (value < current->val) {
+                if (current->left != nullptr) {
+                    current = current->left;
+                } else {
+                    return false;
+                }
+            }
+            if (value > current->val) {
+                if (current->right != nullptr) {
+                    current = current->right;
+                } else {
+                    return false;
+                }
+            }
+            if (value == current->val) {
+                return true;
+            }
+        }
+        return false;
+    }
 };
