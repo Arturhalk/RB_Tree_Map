@@ -190,7 +190,7 @@ class RBtree {
             grand->left = nullptr;
         }
         tmp->parent->right = grand;
-        tmp->parent->right->left = brother;  // error
+        tmp->parent->right->left = brother;
         // Меняем зависимость узлов(родителей и предков)
         tmp->parent->parent = grand->parent;
         tmp->parent->right->parent = tmp->parent;
@@ -204,29 +204,31 @@ class RBtree {
         tmp->parent->right->color = Color::red;
         tmp->parent->color = Color::black;
     }
-    void isUnbalanceRL(Node* tmp) {
+    void rotateRL(Node* tmp) {
         Node* grand = tmp->parent->parent;
         Node* parent = tmp->parent;
+        Node* rightCurrent = tmp->right;
         // Меняем местами parent и current
         grand->right = tmp;
         tmp->right = parent;
         // Меняем зависимости снова)
         tmp->parent = grand;
         parent->parent = tmp;
-        parent->left = nullptr;
+        parent->left = rightCurrent;
         // Переходим к разбалансировке RR
         rotateRR(tmp->right);
     }
-    void isUnbalanceLR(Node* tmp) {
-        Node* grand = tmp->parent->parent;
-        Node* parent = tmp->parent;
+    void rotateLR(Node* tmp) {
+        Node* grand = tmp->parent->parent;  // 12
+        Node* parent = tmp->parent;         // 3
+        Node* leftCurrent = tmp->left;
         // Меняем местами parent и current
         grand->left = tmp;
         tmp->left = parent;
         // Меняем зависимости снова)
         tmp->parent = grand;
         parent->parent = tmp;
-        parent->right = nullptr;
+        parent->right = leftCurrent;
         // Переходим к разбалансировке RR
         rotateLL(tmp->left);
     }
@@ -240,9 +242,9 @@ class RBtree {
         } else if (ifUnbalanceLL(tmp)) {
             rotateLL(tmp);
         } else if (ifUnbalanceRL(tmp)) {
-            isUnbalanceRL(tmp);
+            rotateRL(tmp);
         } else if (ifUnbalanceLR(tmp)) {
-            isUnbalanceLR(tmp);
+            rotateLR(tmp);
         }
     }
     Node* SubInsert(int val) {
@@ -292,7 +294,10 @@ class RBtree {
         }
         Node* insertedNode = SubInsert(value);
         Repaint(insertedNode);
-        Rotate(insertedNode);
+        while (insertedNode && insertedNode != root) {
+            Rotate(insertedNode);
+            insertedNode = insertedNode->parent->parent;
+        }
     }
 
     void print() {
