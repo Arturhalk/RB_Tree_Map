@@ -296,6 +296,9 @@ class RBtree {
         Repaint(insertedNode);
         while (insertedNode && insertedNode != root) {
             Rotate(insertedNode);
+            if (!insertedNode->parent) {
+                break;
+            }
             insertedNode = insertedNode->parent->parent;
         }
     }
