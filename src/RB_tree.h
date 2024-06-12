@@ -273,15 +273,22 @@ class RBtree {
         if (!grand) {
             return;
         }
+
+        if (current->parent == grand->right && grand->left) {
+            if (grand->right->color == Color::red &&
+                grand->left->color == Color::red) {
+                grand->left->color = Color::black;
+                current->parent->color = Color::black;
+            }
+        } else if (current->parent == grand->left && grand->right) {
+            if (grand->right->color == Color::red &&
+                grand->left->color == Color::red) {
+                grand->right->color = Color::black;
+                current->parent->color = Color::black;
+            }
+        }
         if (grand != root) {
             grand->color = Color::red;
-        }
-        if (current->parent == grand->right && grand->left) {
-            grand->left->color = Color::black;
-            current->parent->color = Color::black;
-        } else if (current->parent == grand->left && grand->right) {
-            grand->right->color = Color::black;
-            current->parent->color = Color::black;
         }
     }
 
@@ -292,14 +299,14 @@ class RBtree {
             root->color = Color::black;
             return;
         }
-        Node* insertedNode = SubInsert(value);
-        Repaint(insertedNode);
-        while (insertedNode && insertedNode != root) {
-            Rotate(insertedNode);
-            if (!insertedNode->parent) {
+        Node* insertNode = SubInsert(value);
+        while (insertNode && insertNode != root) {
+            Repaint(insertNode);
+            Rotate(insertNode);
+            if (!insertNode->parent) {
                 break;
             }
-            insertedNode = insertedNode->parent->parent;
+            insertNode = insertNode->parent->parent;
         }
     }
 
