@@ -119,49 +119,75 @@ TEST(RB_Tree, EraseWithTwoChilds)
     std::vector<InfoTree> result = a.GetTreeLikePreorderArray();
     ASSERT_EQ(expected, result);
 }
-TEST(RB_Tree, MostBiggestTree)
+TEST(RB_Tree, EraseRedParenrAndBlackChildLeftLeft)
+{
+    RBTree a;
+    a.Insert(16);
+    a.Insert(19);
+    a.Insert(30);
+    a.Insert(15);
+    a.Insert(14);
+    a.Insert(13);
+    a.Erase(16);
+    std::vector<InfoTree> expected{{Color::kBlack, 19},
+                                   {Color::kRed, 14},
+                                   {Color::kBlack, 13},
+                                   {Color::kBlack, 15},
+                                   {Color::kBlack, 30}};
+    std::vector<InfoTree> result = a.GetTreeLikePreorderArray();
+    ASSERT_EQ(expected, result);
+}
+TEST(RB_Tree, EraseRedParentAndBlackChildRightRight)
+{
+    RBTree a;
+    a.Insert(23);
+    a.Insert(13);
+    a.Insert(32);
+    a.Insert(60);
+    a.Insert(42);
+    a.Insert(62);
+    a.Erase(32);
+    std::vector<InfoTree> expected{{Color::kBlack, 23},
+                                   {Color::kBlack, 13},
+                                   {Color::kRed, 60},
+                                   {Color::kBlack, 42},
+                                   {Color::kBlack, 62}};
+    std::vector<InfoTree> result = a.GetTreeLikePreorderArray();
+    ASSERT_EQ(expected, result);
+}
+TEST(RB_Test, EraseBlackParentAndRedChildLeftRight)
 {
     RBTree a;
     a.Insert(12);
-    a.Insert(1);
-    a.Insert(16);
-    a.Insert(5);
-    a.Insert(2);
-    a.Insert(32);
-    a.Insert(20);
-    a.Insert(25);
-    a.Insert(6);
-    a.Insert(7);
-    a.Insert(8);
-    a.Insert(23);
-    a.Insert(4);
-    a.Insert(30);
-    a.Insert(11);
-    a.Insert(29);
-    a.Insert(15);
-    a.Insert(3);
-    a.Insert(24);
     a.Insert(34);
-    a.Erase(29);
-    std::vector<InfoTree> expected{{Color::kBlack, 12},
-                                   {Color::kBlack, 2},
-                                   {Color::kBlack, 1},
-                                   {Color::kRed, 6},
-                                   {Color::kBlack, 4},
-                                   {Color::kRed, 3},
-                                   {Color::kRed, 5},
-                                   {Color::kBlack, 8},
-                                   {Color::kRed, 7},
-                                   {Color::kRed, 11},
-                                   {Color::kBlack, 25},
-                                   {Color::kRed, 20},
-                                   {Color::kBlack, 16},
-                                   {Color::kRed, 15},
-                                   {Color::kBlack, 23},
-                                   {Color::kRed, 24},
-                                   {Color::kRed, 32},
-                                   {Color::kBlack, 30},
-                                   {Color::kBlack, 34}};
+    a.Insert(45);
+    a.Insert(4);
+    a.Insert(3);
+    a.Insert(2);
+    a.Erase(45);
+    std::vector<InfoTree> expected{{Color::kBlack, 4},
+                                   {Color::kBlack, 3},
+                                   {Color::kRed, 2},
+                                   {Color::kBlack, 34},
+                                   {Color::kRed, 12}};
+    std::vector<InfoTree> result = a.GetTreeLikePreorderArray();
+    ASSERT_EQ(expected, result);
+}
+TEST(RB_Test, EraseBlackParentAndRedChildRightLeft)
+{
+    RBTree a;
+    a.Insert(15);
+    a.Insert(23);
+    a.Insert(1);
+    a.Insert(24);
+    a.Insert(22);
+    a.Insert(34);
+    a.Erase(1);
+    std::vector<InfoTree> expected{{Color::kBlack, 23},
+                                   {Color::kBlack, 15},
+                                   {Color::kRed, 22},
+                                   {Color::kBlack, 24},
+                                   {Color::kRed, 34}};
     std::vector<InfoTree> result = a.GetTreeLikePreorderArray();
     ASSERT_EQ(expected, result);
 }
