@@ -251,8 +251,12 @@ class RBTree
             lr->left = left_curr;
             lr->right = right_curr;
             lr->parent = tmp->parent;
+            lr_parent->parent = lr;
             // сменим родителя у удаляемого
             tmp->parent = lr_parent;
+            // сменим родителей у заменяемого
+            lr->left->parent = lr;
+            lr->right->parent = lr;
             // меняем цвета
             Color color_tmp = tmp->color;
             tmp->color = lr->color;
@@ -328,8 +332,12 @@ class RBTree
             rl->left = left_curr;
             rl->right = right_curr;
             rl->parent = tmp->parent;
+            rl_parent->parent = rl;
 
             tmp->parent = rl_parent;
+
+            rl->left->parent = rl;
+            rl->right->parent = rl;
 
             Color color_tmp = tmp->color;
             tmp->color = rl->color;
@@ -479,12 +487,25 @@ class RBTree
             grand->color = Color::kRed;
         }
     }
-    void RepaintAfterErase(Node *parent)
+    void RepaintAfterErase(Node *parent, Node *left_child, Node *right_child)
     {
         // Балансировку производим от родитиля удаляемого узла
         if (!parent)
         {
             return;
+        }
+
+        if (parent->color == Color::kRed && left_child &&
+            left_child == parent->left &&
+            left_child->color == Color::kRed)
+        {
+            parent->left->color = Color::kBlack;
+        }
+        else if (parent->color == Color::kRed && right_child &&
+                 right_child == parent->right &&
+                 right_child->color == Color::kRed)
+        {
+            parent->right->color = Color::kBlack;
         }
         if (parent->color == Color::kRed && parent->right &&
             parent->right->color == Color::kBlack && parent->right->right &&
@@ -505,14 +526,13 @@ class RBTree
             parent->left->color == Color::kRed;
         }
     }
-    bool isEraseWithRedParent(Node *tmp)
+    bool EraseWithRedParent(Node *tmp)
     {
-
-        Node *grand = tmp->parent;
         if (tmp->color == Color::kRed && tmp->left &&
             tmp->left->color == Color::kBlack && tmp->left->left &&
             tmp->left->left->color == Color::kRed)
         {
+            Node *grand = tmp->parent;
             Node *left_brother_child = tmp->left->right;
             // Перестраиваем дерево
             tmp->left->right = tmp;
@@ -547,7 +567,7 @@ class RBTree
                  tmp->right->color == Color::kBlack && tmp->right->right &&
                  tmp->right->right->color == Color::kRed)
         {
-
+            Node *grand = tmp->parent;
             Node *right_brother_child = tmp->right->left;
 
             tmp->right->left = tmp;
@@ -579,7 +599,7 @@ class RBTree
         }
         return false;
     }
-    bool isEraseWithBlackParentAndRedChildren(Node *tmp)
+    bool EraseWithBlackParentAndRedChild(Node *tmp)
     {
         Node *parent = tmp->parent;
         if (tmp->color == Color::kBlack && tmp->left &&
@@ -662,15 +682,19 @@ class RBTree
     }
     void RotateAfterErase(Node *parent)
     {
-        Node *tmp = parent; // Так как узел мы удалили, то нужно производить балансировку от его родителя
-        if (isEraseWithRedParent(tmp))
+        Node *tmp = parent;
+        if (!tmp)
+        {
+            return;
+        } // Так как узел мы удалили, то нужно производить балансировку от его родителя
+        if (EraseWithRedParent(tmp))
         {
             return;
         }
-        if (isEraseWithBlackParentAndRedChildren(tmp))
+        if (EraseWithBlackParentAndRedChild(tmp))
         {
             return;
-        }
+        }     
     }
 
     void SubErase(int value)
@@ -690,6 +714,10 @@ class RBTree
             {
                 Node *tmp_parent = tmp->parent;
                 Color tmp_color = tmp->color;
+                Node *left_child = tmp->left;
+                Node *right_child = tmp->right;
+                /*запоминаем левого и правого ребенка удаляемого узла,
+                для того чтобы определить перекраску*/
                 if (EraseWithoutChilds(tmp))
                 {
                 }
@@ -706,12 +734,8 @@ class RBTree
                 }
                 else
                 { // Иначе удаляемый узел был черным и высота изменилась
-                    /*начинаем производить балансировку
-                    от родителя удаляемого узла*/
-                    RepaintAfterErase(tmp_parent);
+                    RepaintAfterErase(tmp_parent, left_child, right_child);
                     RotateAfterErase(tmp_parent);
-                    tmp_parent = tmp_parent->parent;
-                    // поднимаемся вверх для проверки черной высоты 
                     break;
                 }
             }
