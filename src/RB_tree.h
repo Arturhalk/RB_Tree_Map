@@ -680,6 +680,36 @@ class RBTree
         }
         return false;
     }
+    bool EraseBlackParentBlackChildAndRedGrandson(Node *tmp)
+    {
+        Node *parent = tmp->parent;
+        if (tmp->color == Color::kBlack && tmp->left &&
+            tmp->left->color == Color::kBlack && tmp->left->right &&
+            tmp->left->right->left->color == Color::kRed)
+        {
+            Node *rem_tmp = tmp;
+            Node *left_child = tmp->left;
+            Node *right_child = tmp->right;
+            Node *son_left_right_right = tmp->left->right->right;
+            Node *son_left_right_left = tmp->left->right->left;
+            if (isRightSon(tmp))
+            {
+                tmp->parent->right = tmp->left->right;
+                tmp->parent->right->left = left_child;
+                tmp->parent->right->right = right_child;
+                tmp->parent = tmp->left->right;
+            }
+            else if (isLeftSon(tmp))
+            {
+            }
+            else
+            {
+            }
+
+            return true;
+        }
+        return false;
+    }
     void RotateAfterErase(Node *parent)
     {
         Node *tmp = parent;
@@ -694,7 +724,11 @@ class RBTree
         if (EraseWithBlackParentAndRedChild(tmp))
         {
             return;
-        }     
+        }
+        if (EraseBlackParentBlackChildAndRedGrandson(tmp))
+        {
+            return;
+        }
     }
 
     void SubErase(int value)
