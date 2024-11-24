@@ -149,7 +149,8 @@ class RBTree
         // Меняем зависимости
         tmp->parent = grand;
         parent->parent = tmp;
-        if(right_current){
+        if (right_current)
+        {
             right_current->parent = parent;
         }
         parent->left = right_current;
@@ -167,7 +168,8 @@ class RBTree
         // Меняем зависимости
         tmp->parent = grand;
         parent->parent = tmp;
-        if(left_current){
+        if (left_current)
+        {
             left_current->parent = parent;
         }
         parent->right = left_current;
@@ -226,7 +228,7 @@ class RBTree
         }
         return tmp;
     }
-    bool PrepairEraseLeftRight(Node *tmp,Color &color_deleted_node)
+    bool PrepairEraseLeftRight(Node *tmp, Color &color_deleted_node)
     {
         // Приводим удаление с двумя детьми, к удалению с одним или без детей
         Node *left_curr = tmp->left;
@@ -306,7 +308,7 @@ class RBTree
             tmp->color = left_curr->color;
             color_deleted_node = left_curr->color;
             left_curr->color = color_tmp;
-             return true;
+            return true;
         }
         return false;
     }
@@ -478,7 +480,7 @@ class RBTree
         {
             return Color::kRed;
         }
-        if (PrepairEraseLeftRight(tmp,erase_tmp_color))
+        if (PrepairEraseLeftRight(tmp, erase_tmp_color))
         {
             if (EraseWithoutChilds(tmp))
             {
@@ -490,7 +492,7 @@ class RBTree
                 return cur;
             }
         }
-        else if (PrepairEraseRightLeft(tmp,erase_tmp_color))
+        else if (PrepairEraseRightLeft(tmp, erase_tmp_color))
         {
             if (EraseWithoutChilds(tmp))
             {
@@ -928,7 +930,8 @@ class RBTree
             RotateEraseRedUncleWithBlackChilds(tmp_parent, uncle);
         }
     }
-    void SubErase(Node* tmp){
+    void SubErase(Node *tmp)
+    {
         Node *tmp_parent = tmp->parent;
         Node *tmp_uncle = nullptr;
         Color tmp_color = tmp->color;
@@ -951,14 +954,16 @@ class RBTree
         else if (isEraseWithOneChild(tmp))
         {
             Color cur = EraseWithOneChild(tmp);
-            if(cur == Color::kRed){
+            if (cur == Color::kRed)
+            {
                 return;
-            }  
+            }
         }
         else
         {
             Color cur = EraseWithTwoChilds(tmp, tmp_color);
-            if(cur == Color::kRed){
+            if (cur == Color::kRed)
+            {
                 return;
             }
         }
