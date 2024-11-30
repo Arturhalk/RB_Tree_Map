@@ -548,151 +548,71 @@ class RBTree
             parent->left->color == Color::kRed;
         }
     }
-    bool RotateEraseBlackUncleAndRedChild(Node *tmp_parent, Node *uncle)
+    bool RotateEraseBlackUncleAndRedChild(Node *uncle)
     {
+
         if (uncle->color == Color::kBlack &&
-            uncle == tmp_parent->left && uncle->left &&
+            uncle == uncle->parent->left && uncle->left &&
             uncle->left->color == Color::kRed)
         {
             RotateLeftLeft(uncle->left);
             uncle->left->color = Color::kBlack;
             uncle->right->color = Color::kBlack;
-            if(uncle->parent != root){
-                uncle->parent->color = Color::kRed;
+            if (uncle && uncle != root)
+            {
+                uncle->color = Color::kRed;
             }
-            return true;
         }
         else if (uncle->color == Color::kBlack &&
-                 uncle == tmp_parent->right && uncle->right &&
+                 uncle == uncle->parent->right && uncle->right &&
                  uncle->right->color == Color::kRed)
         {
-            RotateRightRight(uncle->left);
+            RotateRightRight(uncle->right);
             uncle->left->color = Color::kBlack;
             uncle->right->color = Color::kBlack;
-            if (uncle->parent != root)
+            if (uncle && uncle != root)
             {
-                uncle->parent->color = Color::kRed;
+                uncle->color = Color::kRed;
             }
             return true;
         }
         return false;
     }
 
-    bool RotateEraseBlackUncleBlackChildRedChild(Node *tmp_parent, Node *uncle)
+    bool RotateEraseBlackUncleBlackChildRedChild(Node *uncle)
     {
-        Node *grand = tmp_parent->parent;
-        Node *parent_ = tmp_parent;
-        if ((uncle->color == Color::kBlack &&
-             uncle->left && uncle->left->color == Color::kBlack &&
-             uncle->right && uncle->right->color == Color::kRed) ||
-            (uncle->color == Color::kBlack &&
-             uncle->right && uncle->right->color == Color::kRed))
+        Node *parent_ = uncle->parent;
+        if (uncle->color == Color::kBlack &&
+            uncle->right && uncle->right->color == Color::kRed)
         {
-            Color color_tmp = tmp_parent->color;
-            if (isRightSon(tmp_parent))
+            if (parent_ && isLeftSon(uncle))
             {
-                grand->right = uncle->right;
-                grand->right->right = parent_;
-                grand->right->right->left = nullptr;
-                grand->right->left = uncle;
+                parent_->left = uncle->right;
+                parent_->left->left = uncle;
                 uncle->right = nullptr;
-
-                grand->right->parent = grand;
-                grand->right->right->parent = grand->right;
-                grand->right->left->parent = grand->right;
-
-                grand->right->right->color = Color::kBlack;
-                grand->right->color = color_tmp;
-                return true;
+                parent_->left->parent = parent_;
+                uncle->parent = parent_->left;
+                uncle->color = Color::kRed;
+                parent_->left->color = Color::kBlack;
+                RotateEraseBlackUncleAndRedChild(parent_->left);
             }
-            else if (isLeftSon(tmp_parent))
-            {
-                grand->left = uncle->right;
-                grand->left->right = parent_;
-                grand->left->right->left = nullptr;
-                grand->left->left = uncle;
-                uncle->right = nullptr;
-
-                grand->left->parent = grand;
-                grand->left->right->parent = grand->left;
-                grand->left->left->parent = grand->left;
-
-                grand->left->right->color = Color::kBlack;
-                grand->left->color = color_tmp;
-                return true;
-            }
-            else
-            {
-                root = uncle->right;
-                root->right = parent_;
-                root->left = uncle;
-                root->right->left = nullptr;
-                uncle->right = nullptr;
-
-                root->parent = nullptr;
-                root->right->parent = root;
-                root->left->parent = root;
-
-                root->color = Color::kBlack;
-                root->right->color = Color::kBlack;
-                return true;
-            }
+            return true;
         }
-        else if ((uncle->color == Color::kBlack &&
-                  uncle->right && uncle->right->color == Color::kBlack &&
-                  uncle->left && uncle->left->color == Color::kRed) ||
-                 (uncle->color == Color::kBlack &&
-                  uncle->left && uncle->left->color == Color::kRed))
+        else if (uncle->color == Color::kBlack &&
+                uncle->left && uncle->left->color == Color::kRed)
         {
-            Color color_tmp = tmp_parent->color;
-            if (isRightSon(tmp_parent))
+            if (parent_ && isRightSon(uncle))
             {
-                grand->right = uncle->left;
-                grand->right->right = uncle;
-                grand->right->left = parent_;
-                grand->right->left->right = nullptr;
+                parent_->right = uncle->left;
+                parent_->right->right = uncle;
                 uncle->left = nullptr;
-
-                grand->right->parent = grand;
-                grand->right->right->parent = grand->right;
-                grand->right->left->parent = grand->right;
-
-                grand->right->left->color = Color::kBlack;
-                grand->right->color = color_tmp;
-                return true;
-            }
-            else if (isLeftSon(tmp_parent))
-            {
-                grand->left = uncle->left;
-                grand->left->right = uncle;
-                grand->left->left = parent_;
-                grand->left->left->right = nullptr;
-                uncle->left = nullptr;
-
-                grand->left->parent = grand;
-                grand->left->right->parent = grand->right;
-                grand->left->left->parent = grand->right;
-
-                grand->left->left->color = Color::kBlack;
-                grand->left->color = color_tmp;
-                return true;
-            }
-            else
-            {
-                root = uncle->right;
-                root->right = parent_;
-                root->left = uncle;
-                root->right->left = nullptr;
-                uncle->right = nullptr;
-
-                root->parent = nullptr;
-                root->right->parent = root;
-                root->left->parent = root;
-
-                root->color = Color::kBlack;
-                root->right->color = Color::kBlack;
-                return true;
-            }
+                parent_->right->parent = parent_;
+                uncle->parent = parent_->right;
+                uncle->color = Color::kRed;
+                parent_->right->color = Color::kBlack;
+                RotateEraseBlackUncleAndRedChild(parent_->right);
+            } 
+            return true;
         }
         return false;
     }
@@ -835,26 +755,27 @@ class RBTree
         // }
         while (tmp_parent != root && tmp_parent->color == Color::kBlack)
         {
-            if (RotateEraseBlackUncleAndRedChild(tmp_parent, uncle))
+            if (RotateEraseBlackUncleAndRedChild(uncle))
             {
             }
-            if (RotateEraseBlackUncleBlackChildRedChild(tmp_parent, uncle))
+            if (RotateEraseBlackUncleBlackChildRedChild(uncle))
             {
             }
             if (RotateEraseBlackUncleWithBlackChilds(tmp_parent, uncle))
             {
             }
-            if(RotateEraseRedUncleWithBlackChilds(tmp_parent,uncle)){
+            if (RotateEraseRedUncleWithBlackChilds(tmp_parent, uncle))
+            {
             }
             tmp_parent = tmp_parent->parent;
             uncle = uncle->parent;
         }
-        if (RotateEraseBlackUncleAndRedChild(tmp_parent, uncle))
-        {
-        }
-        // if (RotateEraseBlackUncleBlackChildRedChild(tmp_parent, uncle))
+        // if (RotateEraseBlackUncleAndRedChild(tmp_parent, uncle))
         // {
         // }
+        if (RotateEraseBlackUncleBlackChildRedChild(uncle))
+        {
+        }
         // if (RotateEraseBlackUncleWithBlackChilds(tmp_parent, uncle))
         // {
         // }
