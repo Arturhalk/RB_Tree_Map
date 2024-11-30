@@ -619,101 +619,22 @@ class RBTree
 
     bool RotateEraseRedUncleWithBlackChilds(Node *tmp_parent, Node *uncle)
     {
-        Node *grand = tmp_parent->parent;
-        if (uncle == tmp_parent->left && uncle->color == Color::kRed &&
-            uncle->left &&
+        if (uncle->color == Color::kRed && uncle->left &&
             uncle->left->color == Color::kBlack && uncle->right &&
             uncle->right->color == Color::kBlack)
         {
-            Node *uncle_child_right = uncle->right;
-            if (isRightSon(tmp_parent))
+            if(isRightSon(uncle))
             {
-                grand->right = uncle;
-                grand->right->right = tmp_parent;
-                tmp_parent->left = uncle_child_right;
-
-                tmp_parent->parent = uncle;
-                uncle->parent = grand;
-
-                uncle->color = Color::kBlack;
-                tmp_parent->color = Color::kBlack;
-            }
-            else if (isLeftSon(tmp_parent))
+                RotateRightRight(uncle->right);
+                uncle->left->color = Color::kBlack;
+                uncle->left->right->color = Color::kRed;
+            } 
+            else if(isLeftSon(uncle))
             {
-
-                grand->left = uncle;
-                grand->left->right = tmp_parent;
-                tmp_parent->left = uncle_child_right;
-
-                tmp_parent->parent = uncle;
-                uncle->parent = grand;
-
-                uncle->color = Color::kBlack;
-                tmp_parent->color = Color::kBlack;
+                RotateLeftLeft(uncle->left);
+                uncle->right->color = Color::kBlack;
+                uncle->right->left->color = Color::kRed;
             }
-            else
-            {
-                root = uncle;
-                root->right = tmp_parent;
-                tmp_parent->left = uncle_child_right;
-
-                root->left->parent = root;
-                root->right->parent = root;
-                tmp_parent->left->parent = tmp_parent;
-
-                root->color = Color::kBlack;
-                root->right->color = Color::kBlack;
-            }
-            uncle_child_right->parent = tmp_parent;
-            uncle_child_right->color = Color::kRed;
-            return true;
-        }
-        else if (uncle == tmp_parent->right && uncle->color == Color::kRed &&
-                 uncle->right &&
-                 uncle->right->color == Color::kBlack && uncle->left &&
-                 uncle->left->color == Color::kBlack)
-        {
-            Node *uncle_child_left = uncle->left;
-            if (isRightSon(tmp_parent))
-            {
-                grand->right = uncle;
-                grand->right->left = tmp_parent;
-                tmp_parent->right = uncle_child_left;
-
-                tmp_parent->parent = uncle;
-                uncle->parent = grand;
-
-                uncle->color = Color::kBlack;
-                tmp_parent->color = Color::kBlack;
-            }
-            else if (isLeftSon(tmp_parent))
-            {
-
-                grand->left = uncle;
-                grand->left->left = tmp_parent;
-                tmp_parent->right = uncle_child_left;
-
-                tmp_parent->parent = uncle;
-                uncle->parent = grand;
-
-                uncle->color = Color::kBlack;
-                tmp_parent->color = Color::kBlack;
-            }
-            else
-            {
-                root = uncle;
-                root->left = tmp_parent;
-                tmp_parent->right = uncle_child_left;
-
-                root->left->parent = root;
-                root->right->parent = root;
-                tmp_parent->right->parent = tmp_parent;
-
-                root->color = Color::kBlack;
-                root->left->color = Color::kBlack;
-            }
-            uncle_child_left->parent = tmp_parent;
-            uncle_child_left->color = Color::kRed;
             return true;
         }
         return false;
@@ -749,10 +670,6 @@ class RBTree
     }
     void RotateAfterErase(Node *tmp_parent, Node *uncle)
     {
-        // if (!tmp_parent)
-        // {
-        //     return;
-        // }
         while (tmp_parent != root && tmp_parent->color == Color::kBlack)
         {
             if (RotateEraseBlackUncleAndRedChild(uncle))
@@ -770,18 +687,6 @@ class RBTree
             tmp_parent = tmp_parent->parent;
             uncle = uncle->parent;
         }
-        // if (RotateEraseBlackUncleAndRedChild(tmp_parent, uncle))
-        // {
-        // }
-        if (RotateEraseBlackUncleBlackChildRedChild(uncle))
-        {
-        }
-        // if (RotateEraseBlackUncleWithBlackChilds(tmp_parent, uncle))
-        // {
-        // }
-        // if (RotateEraseRedUncleWithBlackChilds(tmp_parent, uncle))
-        // {
-        // }
     }
     void SubErase(Node *tmp)
     {
